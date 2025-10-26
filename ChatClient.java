@@ -11,7 +11,6 @@ public class ChatClient {
              PrintWriter serverOut = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in))) {
 
-            // Wait for server's username prompt
             String serverMsg = serverIn.readLine();
             if (serverMsg == null) {
                 System.out.println("Server closed connection.");
@@ -23,11 +22,9 @@ public class ChatClient {
                 String username = userIn.readLine();
                 serverOut.println(username);
             } else {
-                // Unexpected but continue
                 System.out.println("Server: " + serverMsg);
             }
 
-            // Create a thread to continuously read server messages
             Thread readerThread = new Thread(() -> {
                 String msg;
                 try {
@@ -41,7 +38,6 @@ public class ChatClient {
             readerThread.setDaemon(true);
             readerThread.start();
 
-            // Main loop: read from console and send to server
             String input;
             while ((input = userIn.readLine()) != null) {
                 serverOut.println(input);
