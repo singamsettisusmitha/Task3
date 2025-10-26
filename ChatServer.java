@@ -2,16 +2,9 @@ import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
 
-/**
- * Multithreaded Chat Server
- * - Accepts multiple clients
- * - Each client handled on its own thread
- * - Broadcasts messages to all clients
- * - Supports private messages with "@username message"
- */
 public class ChatServer {
     private static final int PORT = 12345;
-    // Map username -> writer for private messaging & broadcasting
+    
     private static final ConcurrentHashMap<String, PrintWriter> clients = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws IOException {
@@ -21,7 +14,7 @@ public class ChatServer {
         try {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                // Handle client in a separate thread
+               
                 new Thread(new ClientHandler(clientSocket)).start();
             }
         } finally {
@@ -45,7 +38,7 @@ public class ChatServer {
                 in  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
 
-                // Ask for a username
+                
                 out.println("ENTER_USERNAME");
                 String requestedName = in.readLine();
                 if (requestedName == null) return;
@@ -57,7 +50,7 @@ public class ChatServer {
                     return;
                 }
 
-                // If username already exists, reject
+
                 if (clients.putIfAbsent(requestedName, out) != null) {
                     out.println("ERROR Username already taken. Connection closing.");
                     closeConnection();
@@ -68,7 +61,6 @@ public class ChatServer {
                 out.println("WELCOME " + username);
                 broadcast("SERVER: " + username + " has joined the chat.");
 
-                // Read messages from this client and broadcast or send private
                 String line;
                 while ((line = in.readLine()) != null) {
                     line = line.trim();
@@ -77,7 +69,6 @@ public class ChatServer {
                     }
                     if (line.isEmpty()) continue;
 
-                    // Private message syntax: @username message...
                     if (line.startsWith("@")) {
                         int spaceIdx = line.indexOf(' ');
                         if (spaceIdx > 1) {
